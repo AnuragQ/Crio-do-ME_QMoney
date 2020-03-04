@@ -146,7 +146,7 @@ public class PortfolioManagerApplication {
 
   public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
     String endDateS = args[1];
-    
+
     LocalDate endDate = LocalDate.parse(endDateS);
     // System.out.println(endDate);
     File x = resolveFileFromResources(args[0]);
@@ -238,6 +238,7 @@ public class PortfolioManagerApplication {
           });
       TiingoCandle last = collection.get(collection.size() - 1);
       Double buyPrice = 0.0;
+      LocalDate newEndDate = last.getDate();
       // TiingoCandle first=collection.get(0);
       for (TiingoCandle t : collection) {
         if (t.getDate().compareTo(i.getPurchaseDate()) == 0) {
@@ -246,7 +247,7 @@ public class PortfolioManagerApplication {
       }
       System.out.println(last.getDate());
       AnnualizedReturn annualizedReturn =
-          calculateAnnualizedReturns(endDate, i, buyPrice, last.getClose());
+          calculateAnnualizedReturns(newEndDate, i, buyPrice, last.getClose());
       list2.add(annualizedReturn);
     }
     Collections.sort(list2, new Comparator<AnnualizedReturn>() {
