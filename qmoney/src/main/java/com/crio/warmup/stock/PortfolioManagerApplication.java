@@ -237,6 +237,7 @@ public class PortfolioManagerApplication {
           });
       TiingoCandle last = collection.get(collection.size() - 1);
       Double buyPrice = 0.0;
+      // TiingoCandle first=collection.get(0);
       for (TiingoCandle t : collection) {
         if (t.getDate().compareTo(i.getPurchaseDate()) == 0) {
           buyPrice = t.getOpen();
@@ -247,6 +248,12 @@ public class PortfolioManagerApplication {
           calculateAnnualizedReturns(endDate, i, buyPrice, last.getClose());
       list2.add(annualizedReturn);
     }
+    Collections.sort(list2, new Comparator<AnnualizedReturn>() {
+      @Override
+      public int compare(AnnualizedReturn a1, AnnualizedReturn a2) {
+        return a1.getAnnualizedReturn().intValue() - a2.getAnnualizedReturn().intValue();
+      }
+    });
 
 
 
