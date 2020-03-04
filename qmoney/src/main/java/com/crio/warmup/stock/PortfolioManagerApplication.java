@@ -146,6 +146,7 @@ public class PortfolioManagerApplication {
 
   public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
     String endDateS = args[1];
+    
     LocalDate endDate = LocalDate.parse(endDateS);
     // System.out.println(endDate);
     File x = resolveFileFromResources(args[0]);
