@@ -280,7 +280,7 @@ public class PortfolioManagerApplication {
     // System.out.println(trade.toString());
     Double totalReturn = (sellPrice - buyPrice) / buyPrice;
     // Double time = (endDate.getDayOfYear() - trade.getPurchaseDate().getDayOfYear())/365.0;
-    Double time = ChronoUnit.DAYS.between(trade.getPurchaseDate(), endDate) / 365.0;
+    Double time = (double) ChronoUnit.DAYS.between(trade.getPurchaseDate(), endDate);
 
     // System.out.println(endDate.getDayOfYear());
     // System.out.println();
@@ -289,7 +289,7 @@ public class PortfolioManagerApplication {
     // time=1;
     // }
 
-    Double annualizedReturn = Math.pow((1 + totalReturn), 1.0 / (time)) - 1;
+    Double annualizedReturn = Math.pow((1 + totalReturn), 365.0 / (time)) - 1;
     return new AnnualizedReturn(trade.getSymbol(), annualizedReturn, totalReturn);
   }
 
