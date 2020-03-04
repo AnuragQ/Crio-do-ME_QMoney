@@ -241,8 +241,10 @@ public class PortfolioManagerApplication {
       LocalDate newEndDate = last.getDate();
       // TiingoCandle first=collection.get(0);
       for (TiingoCandle t : collection) {
-        if (t.getDate().compareTo(i.getPurchaseDate()) == 0) {
-          buyPrice = t.getOpen();
+        buyPrice = t.getOpen();
+        if (t.getDate().compareTo(i.getPurchaseDate()) >= 0) {
+
+          break;
         }
       }
       System.out.println(last.getDate());
@@ -256,8 +258,6 @@ public class PortfolioManagerApplication {
         return a1.getAnnualizedReturn().intValue() - a2.getAnnualizedReturn().intValue();
       }
     });
-
-
 
     return list2;
   }
@@ -279,9 +279,12 @@ public class PortfolioManagerApplication {
       Double buyPrice, Double sellPrice) {
     // System.out.println(trade.toString());
     Double totalReturn = (sellPrice - buyPrice) / buyPrice;
-    // Double time = (endDate.getDayOfYear() - trade.getPurchaseDate().getDayOfYear())/365.0;
+    // Double time = (endDate.getDayOfYear() -
+    // trade.getPurchaseDate().getDayOfYear())/365.0;
     Double time = (double) ChronoUnit.DAYS.between(trade.getPurchaseDate(), endDate);
-
+    if (time <= 0) {
+      throw new RuntimeException();
+    }
     // System.out.println(endDate.getDayOfYear());
     // System.out.println();
     // if(time==0){
