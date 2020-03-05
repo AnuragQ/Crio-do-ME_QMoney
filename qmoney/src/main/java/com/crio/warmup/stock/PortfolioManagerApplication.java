@@ -239,9 +239,9 @@ public class PortfolioManagerApplication {
       List<TiingoCandle> collection =
           mapper.readValue(result, new TypeReference<ArrayList<TiingoCandle>>() {
           });
-      TiingoCandle last = collection.get(collection.size() - 1);
+      // TiingoCandle last = collection.get(collection.size() - 1);
       // Double buyPrice = 0.0;
-      LocalDate newEndDate = last.getDate();
+      // LocalDate newEndDate = last.getDate();
       // // TiingoCandle first=collection.get(0);
       // Collections.sort(collection,new Comparator<TiingoCandle>() {
       // @Override
@@ -271,7 +271,7 @@ public class PortfolioManagerApplication {
       // System.out.println(last.getDate());
       if (closePrice != null && buyPrice != null) {
         AnnualizedReturn annualizedReturn =
-            calculateAnnualizedReturns(newEndDate, i, buyPrice, closePrice);
+            calculateAnnualizedReturns(endDate, i, buyPrice, closePrice);
         list2.add(annualizedReturn);
       }
     }
