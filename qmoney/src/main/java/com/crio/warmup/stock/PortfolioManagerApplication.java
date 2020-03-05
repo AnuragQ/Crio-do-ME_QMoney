@@ -263,7 +263,7 @@ public class PortfolioManagerApplication {
       }
       for (TiingoCandle t : collection) {
         // buyPrice = t.getOpen();
-        if (t.getDate().compareTo(i.getPurchaseDate()) == 0) {
+        if (t.getDate().compareTo(i.getPurchaseDate()) >= 0) {
           buyPrice = t.getOpen();
           break;
         }
