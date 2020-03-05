@@ -223,13 +223,13 @@ public class PortfolioManagerApplication {
     List<AnnualizedReturn> list2 = new ArrayList<AnnualizedReturn>();
 
     for (PortfolioTrade i : y) {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.registerModule(new JavaTimeModule());
+      // ObjectMapper mapper = new ObjectMapper();
+      // mapper.registerModule(new JavaTimeModule());
       LocalDate startDate = i.getPurchaseDate();
       if (startDate.isAfter(endDate)) {
         throw new RuntimeException();
       }
-      System.out.println(startDate.getClass().getName());
+      // System.out.println(startDate.getClass().getName());
       String symbol = i.getSymbol();
       String uri = "https://api.tiingo.com/tiingo/daily/" + symbol + "/prices?" + "startDate="
           + startDate.toString() + "&token=" + "0e33b35ed0c8ae45d1ec18fcae2104bbf0106b68"
@@ -237,7 +237,7 @@ public class PortfolioManagerApplication {
       RestTemplate restTemplate = new RestTemplate();
       String result = restTemplate.getForObject(uri, String.class);
       List<TiingoCandle> collection =
-          mapper.readValue(result, new TypeReference<ArrayList<TiingoCandle>>() {
+          om.readValue(result, new TypeReference<ArrayList<TiingoCandle>>() {
           });
       // TiingoCandle last = collection.get(collection.size() - 1);
       // Double buyPrice = 0.0;
@@ -263,7 +263,7 @@ public class PortfolioManagerApplication {
       }
       for (TiingoCandle t : collection) {
         // buyPrice = t.getOpen();
-        if (t.getDate().compareTo(i.getPurchaseDate()) >= 0) {
+        if (t.getDate().isEqual(i.getPurchaseDate())) {
           buyPrice = t.getOpen();
           break;
         }
@@ -278,7 +278,7 @@ public class PortfolioManagerApplication {
     Collections.sort(list2, new Comparator<AnnualizedReturn>() {
       @Override
       public int compare(AnnualizedReturn a1, AnnualizedReturn a2) {
-        return - a1.getAnnualizedReturn().intValue() + a2.getAnnualizedReturn().intValue();
+        return Double.compare(a2.getAnnualizedReturn(),a1.getAnnualizedReturn());
       }
     });
 
