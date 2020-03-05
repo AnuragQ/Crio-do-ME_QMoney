@@ -226,6 +226,9 @@ public class PortfolioManagerApplication {
       ObjectMapper mapper = new ObjectMapper();
       mapper.registerModule(new JavaTimeModule());
       LocalDate startDate = i.getPurchaseDate();
+      if (startDate.isAfter(endDate)) {
+        throw new RuntimeException();
+      }
       System.out.println(startDate.getClass().getName());
       String symbol = i.getSymbol();
       String uri = "https://api.tiingo.com/tiingo/daily/" + symbol + "/prices?" + "startDate="
@@ -237,20 +240,40 @@ public class PortfolioManagerApplication {
           mapper.readValue(result, new TypeReference<ArrayList<TiingoCandle>>() {
           });
       TiingoCandle last = collection.get(collection.size() - 1);
-      Double buyPrice = 0.0;
+      // Double buyPrice = 0.0;
       LocalDate newEndDate = last.getDate();
-      // TiingoCandle first=collection.get(0);
+      // // TiingoCandle first=collection.get(0);
+      // Collections.sort(collection,new Comparator<TiingoCandle>() {
+      // @Override
+      // public int compare(TiingoCandle a1, TiingoCandle a2) {
+      // return a1.getDate().compareTo(a2.getDate());
+      // }});
+      Double closePrice = null;
+      Double buyPrice = null;
+      LocalDate closePriceDate = null;
       for (TiingoCandle t : collection) {
-        buyPrice = t.getOpen();
-        if (t.getDate().compareTo(i.getPurchaseDate()) >= 0) {
-
+        if (closePrice == null || t.getDate().isEqual(endDate)
+            || t.getDate().isAfter(closePriceDate)) {
+          closePrice = t.getClose();
+          closePriceDate = t.getDate();
+        }
+        if (t.getDate().isEqual((endDate))) {
           break;
         }
       }
-      System.out.println(last.getDate());
-      AnnualizedReturn annualizedReturn =
-          calculateAnnualizedReturns(newEndDate, i, buyPrice, last.getClose());
-      list2.add(annualizedReturn);
+      for (TiingoCandle t : collection) {
+        // buyPrice = t.getOpen();
+        if (t.getDate().compareTo(i.getPurchaseDate()) == 0) {
+          buyPrice = t.getOpen();
+          break;
+        }
+      }
+      // System.out.println(last.getDate());
+      if (closePrice != null && buyPrice != null) {
+        AnnualizedReturn annualizedReturn =
+            calculateAnnualizedReturns(newEndDate, i, buyPrice, closePrice);
+        list2.add(annualizedReturn);
+      }
     }
     Collections.sort(list2, new Comparator<AnnualizedReturn>() {
       @Override
@@ -282,9 +305,9 @@ public class PortfolioManagerApplication {
     // Double time = (endDate.getDayOfYear() -
     // trade.getPurchaseDate().getDayOfYear())/365.0;
     Double time = (double) ChronoUnit.DAYS.between(trade.getPurchaseDate(), endDate);
-    if (time <= 0) {
-      throw new RuntimeException();
-    }
+    // if (time <= 0) {
+
+    // }
     // System.out.println(endDate.getDayOfYear());
     // System.out.println();
     // if(time==0){
