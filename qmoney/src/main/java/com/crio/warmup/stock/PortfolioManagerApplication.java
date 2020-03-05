@@ -278,7 +278,7 @@ public class PortfolioManagerApplication {
     Collections.sort(list2, new Comparator<AnnualizedReturn>() {
       @Override
       public int compare(AnnualizedReturn a1, AnnualizedReturn a2) {
-        return a1.getAnnualizedReturn().intValue() - a2.getAnnualizedReturn().intValue();
+        return - a1.getAnnualizedReturn().intValue() + a2.getAnnualizedReturn().intValue();
       }
     });
 
