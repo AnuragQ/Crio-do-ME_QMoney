@@ -6,9 +6,12 @@ import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
 import com.crio.warmup.stock.dto.TotalReturnsDto;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
+import com.crio.warmup.stock.portfolio.PortfolioManager;
+import com.crio.warmup.stock.portfolio.PortfolioManagerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -22,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
+
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.web.client.RestTemplate;
 
@@ -215,22 +219,17 @@ public class PortfolioManagerApplication {
       throws IOException, URISyntaxException {
     String endDateS = args[1];
     LocalDate endDate = LocalDate.parse(endDateS);
-    // System.out.println(endDate);
     File x = resolveFileFromResources(args[0]);
     ObjectMapper om = getObjectMapper();
-    PortfolioTrade[] y = om.readValue(x, PortfolioTrade[].class);
-    // list
+    PortfolioTrade[] portfolioTrades = om.readValue(x, PortfolioTrade[].class);
     List<AnnualizedReturn> list2 = new ArrayList<AnnualizedReturn>();
 
-    for (PortfolioTrade i : y) {
-      // ObjectMapper mapper = new ObjectMapper();
-      // mapper.registerModule(new JavaTimeModule());
-      LocalDate startDate = i.getPurchaseDate();
+    for (PortfolioTrade trade : portfolioTrades) {
+      LocalDate startDate = trade.getPurchaseDate();
       if (startDate.isAfter(endDate)) {
         throw new RuntimeException();
       }
-      // System.out.println(startDate.getClass().getName());
-      String symbol = i.getSymbol();
+      String symbol = trade.getSymbol();
       String uri = "https://api.tiingo.com/tiingo/daily/" + symbol + "/prices?" + "startDate="
           + startDate.toString() + "&token=" + "0e33b35ed0c8ae45d1ec18fcae2104bbf0106b68"
           + "&endDate=" + endDate.toString();
@@ -239,46 +238,37 @@ public class PortfolioManagerApplication {
       List<TiingoCandle> collection =
           om.readValue(result, new TypeReference<ArrayList<TiingoCandle>>() {
           });
-      // TiingoCandle last = collection.get(collection.size() - 1);
-      // Double buyPrice = 0.0;
-      // LocalDate newEndDate = last.getDate();
-      // // TiingoCandle first=collection.get(0);
-      // Collections.sort(collection,new Comparator<TiingoCandle>() {
-      // @Override
-      // public int compare(TiingoCandle a1, TiingoCandle a2) {
-      // return a1.getDate().compareTo(a2.getDate());
-      // }});
+
       Double closePrice = null;
       Double buyPrice = null;
       LocalDate closePriceDate = null;
-      for (TiingoCandle t : collection) {
-        if (closePrice == null || t.getDate().isEqual(endDate)
-            || t.getDate().isAfter(closePriceDate)) {
-          closePrice = t.getClose();
-          closePriceDate = t.getDate();
+      for (TiingoCandle candle : collection) {
+        if (closePrice == null || candle.getDate().isEqual(endDate)
+            || candle.getDate().isAfter(closePriceDate)) {
+          closePrice = candle.getClose();
+          closePriceDate = candle.getDate();
         }
-        if (t.getDate().isEqual((endDate))) {
+        if (candle.getDate().isEqual((endDate))) {
           break;
         }
       }
-      for (TiingoCandle t : collection) {
-        // buyPrice = t.getOpen();
-        if (t.getDate().isEqual(i.getPurchaseDate())) {
-          buyPrice = t.getOpen();
+      for (TiingoCandle candle : collection) {
+        if (candle.getDate().isEqual(trade.getPurchaseDate())) {
+          buyPrice = candle.getOpen();
           break;
         }
       }
       // System.out.println(last.getDate());
       if (closePrice != null && buyPrice != null) {
         AnnualizedReturn annualizedReturn =
-            calculateAnnualizedReturns(endDate, i, buyPrice, closePrice);
+            calculateAnnualizedReturns(endDate, trade, buyPrice, closePrice);
         list2.add(annualizedReturn);
       }
     }
     Collections.sort(list2, new Comparator<AnnualizedReturn>() {
       @Override
       public int compare(AnnualizedReturn a1, AnnualizedReturn a2) {
-        return Double.compare(a2.getAnnualizedReturn(),a1.getAnnualizedReturn());
+        return Double.compare(a2.getAnnualizedReturn(), a1.getAnnualizedReturn());
       }
     });
 
@@ -319,11 +309,48 @@ public class PortfolioManagerApplication {
     return new AnnualizedReturn(trade.getSymbol(), annualizedReturn, totalReturn);
   }
 
+  // public class PortfolioManagerApplication {
+
+  // TODO: CRIO_TASK_MODULE_REFACTOR
+  // Once you are done with the implementation inside PortfolioManagerImpl and
+  // PortfolioManagerFactory,
+  // Create PortfolioManager using PortfoliomanagerFactory,
+  // Refer to the code from previous modules to get the List<PortfolioTrades> and
+  // endDate, and
+  // call the newly implemented method in PortfolioManager to calculate the
+  // annualized returns.
+  // Test the same using the same commands as you used in module 3
+  // use gralde command like below to test your code
+  // ./gradlew run --args="trades.json 2020-01-01"
+  // ./gradlew run --args="trades.json 2019-07-01"
+  // ./gradlew run --args="trades.json 2019-12-03"
+  // where trades.json is your json file
+  // Confirm that you are getting same results as in Module3.
+
+  public static List<AnnualizedReturn> mainCalculateReturnsAfterRefactor(String[] args)
+      throws Exception {
+    LocalDate endDate = LocalDate.parse(args[1]);
+    File x = resolveFileFromResources(args[0]);
+    ObjectMapper om = getObjectMapper();
+    List<PortfolioTrade> portfolioTrades =
+        om.readValue(x, new TypeReference<ArrayList<PortfolioTrade>>() {
+        });
+    PortfolioManager portfolioManager =
+        PortfolioManagerFactory.getPortfolioManager(new RestTemplate());
+    List<AnnualizedReturn> annualizedReturn =
+        portfolioManager.calculateAnnualizedReturn(portfolioTrades, endDate);
+    // String contents = readFileAsString(file);
+    // ObjectMapper objectMapper = getObjectMapper();
+    // return
+    // portfolioManager.calculateAnnualizedReturn(Arrays.asList(portfolioTrades),
+    // endDate);
+    return annualizedReturn;
+  }
+
   public static void main(String[] args) throws Exception {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler());
     ThreadContext.put("runId", UUID.randomUUID().toString());
 
-    printJsonObject(mainCalculateSingleReturn(args));
-
+    printJsonObject(mainCalculateReturnsAfterRefactor(args));
   }
 }
