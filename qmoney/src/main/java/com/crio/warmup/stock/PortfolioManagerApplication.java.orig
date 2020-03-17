@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
@@ -52,7 +51,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.web.client.RestTemplate;
 
-public class PortfolioManagerApplication {
+public class PortfolioManagerApplication_BACKUP_1029 {
 
   // TODO: CRIO_TASK_MODULE_JSON_PARSING
   // Read the json file provided in the argument[0]. The file will be avilable in
@@ -84,7 +83,7 @@ public class PortfolioManagerApplication {
   }
 
   private static void printJsonObject(Object object) throws IOException {
-    Logger logger = Logger.getLogger(PortfolioManagerApplication.class.getCanonicalName());
+    Logger logger = Logger.getLogger(PortfolioManagerApplication_BACKUP_1029.class.getCanonicalName());
     ObjectMapper mapper = new ObjectMapper();
     logger.info(mapper.writeValueAsString(object));
   }
@@ -397,6 +396,7 @@ public class PortfolioManagerApplication {
     printJsonObject(mainCalculateReturnsAfterRefactor(args));
   }
 }
+
 
 
 

@@ -42,18 +42,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.springframework.web.client.RestTemplate;
 
-public class PortfolioManagerImpl implements PortfolioManager {
-
-
+public class PortfolioManagerImpl_BACKUP_1029 implements PortfolioManager {
 
   private RestTemplate restTemplate;
 
   // Caution: Do not delete or modify the constructor, or else your build will
   // break!
 
-  // Caution: Do not delete or modify the constructor, or else your build will break!
+  // Caution: Do not delete or modify the constructor, or else your build will
+  // break!
   // This is absolutely necessary for backward compatibility
-  protected PortfolioManagerImpl(RestTemplate restTemplate) {
+  protected PortfolioManagerImpl_BACKUP_1029(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 
