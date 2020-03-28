@@ -1,7 +1,7 @@
 plugins {
     id 'io.spring.dependency-management'
     id 'java'
-    id 'maven-publish'
+    // id 'maven-publish'
 }
 
 group = 'com.crio.warmup'
@@ -16,6 +16,8 @@ configurations {
 
 
 apply plugin: 'application'
+// apply plugin: 'maven-publish'
+
 mainClassName = 'com.crio.warmup.stock.PortfolioManagerApplication'
 
 
@@ -23,6 +25,7 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
+
 
 dependencies {
     compile group: 'org.decampo', name: 'xirr', version: '0.1'
@@ -62,11 +65,12 @@ test {
 publishing {
     publications {
         maven(MavenPublication){
-            groupId = 'com.crio.warmup'
+            groupId 'com.crio.warmup'
 
-            artifactId  ='annual-return'
+            version '1.0.0'
 
-            version = '1.0.0'
+            artifactId 'annual-return'        
+
             from components.java
 
         }

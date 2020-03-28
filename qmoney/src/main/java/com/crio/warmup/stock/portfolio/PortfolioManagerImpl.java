@@ -1,8 +1,8 @@
 package com.crio.warmup.stock.portfolio;
 
 import com.crio.warmup.stock.dto.AnnualizedReturn;
-import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.PortfolioTrade;
+import com.crio.warmup.stock.dto.TiingoCandle;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -16,30 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
-
-import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.SECONDS;
-
-import com.crio.warmup.stock.dto.AnnualizedReturn;
-import com.crio.warmup.stock.dto.Candle;
-import com.crio.warmup.stock.dto.PortfolioTrade;
-import com.crio.warmup.stock.dto.TiingoCandle;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.springframework.web.client.RestTemplate;
 
 public class PortfolioManagerImpl implements PortfolioManager {
@@ -95,14 +71,14 @@ public class PortfolioManagerImpl implements PortfolioManager {
   // replacing the placeholders with actual parameters.
 
 
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to)
+  public List<TiingoCandle> getStockQuote(String symbol, LocalDate from, LocalDate to)
       throws JsonProcessingException {
     String uri = buildUri(symbol, from, to);
     ObjectMapper mapper = getObjectMapper();
     String result = restTemplate.getForObject(uri, String.class);
-    List<Candle> collection = null;
+    List<TiingoCandle> collection = null;
     try {
-      collection = mapper.readValue(result, new TypeReference<ArrayList<Candle>>() {
+      collection = mapper.readValue(result, new TypeReference<ArrayList<TiingoCandle>>() {
       });
     } catch (JsonMappingException e) {
       // TODO Auto-generated catch block
@@ -118,7 +94,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   protected String buildUri(String symbol, LocalDate startDate, LocalDate endDate) {
     String uriTemplate =
-        "https://api.tiingo.com/tiingo/daily/$SYMBOL/prices?" + "startDate=" + startDate.toString()
+        "https://api.tiingo.com/tiingo/daily/"+symbol+"/prices?" + "startDate=" + startDate.toString()
             + "&endDate=" + endDate.toString() + "&token=0e33b35ed0c8ae45d1ec18fcae2104bbf0106b68";
     return uriTemplate;
   }
@@ -144,7 +120,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
 
 
-      List<Candle> collection = null;
+      List<TiingoCandle> collection = null;
       try {
         collection = getStockQuote(symbol, startDate, endDate);
       } catch (JsonProcessingException e) {
@@ -156,7 +132,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
       Double closePrice = null;
       Double buyPrice = null;
       LocalDate closePriceDate = null;
-      for (Candle t : collection) {
+      for (TiingoCandle t : collection) {
         if (closePrice == null || t.getDate().isEqual(endDate)
             || t.getDate().isAfter(closePriceDate)) {
           closePrice = t.getClose();
@@ -166,7 +142,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
           break;
         }
       }
-      for (Candle t : collection) {
+      for (TiingoCandle t : collection) {
         if (t.getDate().isEqual(i.getPurchaseDate())) {
           buyPrice = t.getOpen();
           break;
